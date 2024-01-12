@@ -1,0 +1,78 @@
+General Analysis Code.
+
+# Group by 'Country' and calculate the average sentiment score for each
+average_sentiment_by_country = df_filtered.groupby('Country')['Sentiment'].mean()
+
+# Plotting
+plt.figure(figsize=(10, 6))
+average_sentiment_by_country.sort_values().plot(kind='barh')
+plt.title('Average Sentiment by Country')
+plt.xlabel('Average Sentiment Score')
+plt.ylabel('Country')
+plt.savefig('average_sentiment_by_country.png')  # Save the plot in the work directory
+plt.show()
+
+
+# Group by 'Platform' and calculate the average sentiment score for each
+average_sentiment_by_platform = df_filtered.groupby('Platform')['Sentiment'].mean()
+
+# Plotting
+plt.figure(figsize=(10, 6))
+average_sentiment_by_platform.sort_values().plot(kind='barh')
+plt.title('Average Sentiment by Platform')
+plt.xlabel('Average Sentiment Score')
+plt.ylabel('Platform')
+plt.savefig('average_sentiment_by_platform.png')  # Save the plot in the work directory
+plt.show()
+
+import pandas as pd
+from nltk.tokenize import word_tokenize
+from nltk.probability import FreqDist
+from nltk.corpus import stopwords
+import matplotlib.pyplot as plt
+
+# Assuming 'Text' and 'Country' are the columns containing your text data and country information
+countries = df_filtered['Country'].unique()
+
+stop_words = set(stopwords.words('english'))
+
+for country in countries:
+    # Filter data for the specific country
+    country_data = df_filtered[df_filtered['Country'] == country]
+    
+    # Concatenate text data for the selected country
+    text_data = country_data['Text'].str.lower().str.cat(sep=' ')
+    
+    # Tokenization
+    tokens = word_tokenize(text_data)
+    
+    # Remove stopwords
+    filtered_tokens = [word for word in tokens if word.isalnum() and word not in stop_words]
+    
+    # Word Frequency
+    freq_dist = FreqDist(filtered_tokens)
+    
+    # Check if there are enough words for analysis
+    if len(freq_dist) > 0:
+        # Print the top 20 words
+        top_words = freq_dist.most_common(20)
+        print(f'Top 20 words in {country}: {top_words}')
+        
+        # Visualization
+        plt.figure(figsize=(12, 6))
+        plt.bar([word[0] for word in top_words], [word[1] for word in top_words], color='skyblue')
+        plt.title(f'Top 20 Most Frequent Words in {country}')
+        plt.xlabel('Words')
+        plt.ylabel('Frequency')
+        plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for better readability
+        plt.tight_layout()
+        
+        # Save the visualization
+        save_path = f'{country}_top_words.png'
+        plt.savefig(save_path)
+        print(f'Visualization saved as {save_path}')
+        
+        # Show the visualization
+        plt.show()
+    else:
+        print(f'Not enough words for analysis in {country}.')
