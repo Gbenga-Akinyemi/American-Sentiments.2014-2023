@@ -1,0 +1,27 @@
+Data_filtering 
+import pandas as pd
+from textblob import TextBlob
+import os
+
+# Specify the path to the original CSV file
+original_file_path = '/Users/gbengaakinyemi/Documents/2024-Analytics-Projects/2024.Sentiment.Analysis.Data/Social Media data.directory/sentimentdataset.csv'
+
+# Read the original CSV file into a DataFrame
+df_original = pd.read_csv(original_file_path)
+
+# Extract data for the specified countries (USA and Canada) using case-insensitive matching
+target_countries = ['USA', 'Canada']
+df_filtered = df_original[df_original['Country'].str.casefold().isin(target_countries)].copy()
+
+# Perform sentiment analysis using TextBlob
+df_filtered['Sentiment'] = df_filtered['Text'].apply(lambda x: TextBlob(str(x)).sentiment.polarity)
+
+# Save the filtered data to a new CSV file in the working directory
+filtered_file_path = 'sentiment.US.Canada.csv'
+df_filtered.to_csv(filtered_file_path, index=False)
+
+# Display the current working directory
+print("Current working directory:", os.getcwd())
+
+# Display the path to the saved CSV file
+print("Filtered data saved to:", filtered_file_path)
